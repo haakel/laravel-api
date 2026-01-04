@@ -9,4 +9,4 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::get('/data', [DataController::class, 'index']);
+Route::get('/data', [DataController::class]);

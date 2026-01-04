@@ -11,6 +11,14 @@ class DataController extends Controller
 {
     public function index()
     {
-        return  DataResource::collection(Data::all());
+        // return  DataResource::collection(Data::all());
+        return  DataResource::collection(Data::paginate(2));
+    }
+    public function show($id)
+    {
+        return new DataResource($id);
+    }  
+    public function s() : Returntype {
+        
     }
 }
