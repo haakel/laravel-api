@@ -18,7 +18,4 @@ class DataController extends Controller
     {
         return new DataResource($id);
     }  
-    public function s() : Returntype {
-        
-    }
 }
