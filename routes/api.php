@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\DataController;
 use App\Http\Controllers\api\CategoryController;
+use App\Http\Controllers\api\SongController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -16,4 +17,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::put('/categories/{id}', [CategoryController::class, 'update']);
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+    Route::get('/songs', [SongController::class, 'index']);
+    Route::post('/songs', [SongController::class, 'store']);
+
 });

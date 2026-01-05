@@ -33,17 +33,17 @@ class Song extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function genre()
+    public function genre(): BelongsTo
     {
         return $this->belongsTo(Genre::class);
     }
 
-    public function year()
+    public function year(): BelongsTo
     {
         return $this->belongsTo(Year::class);
     }
 
-    public function artist()
+    public function artist(): BelongsTo
     {
         return $this->belongsTo(Artist::class);
     }
