@@ -21,9 +21,8 @@ class StoreSongRequest extends FormRequest
             'year_id' => 'nullable|exists:years,id',
             'genre_id' => 'nullable|exists:genres,id',
             'duration' => 'nullable|integer|min:0',
-            'path' => 'required|string|max:255',
-            'cover_path' => 'nullable|string|max:255',
-            'plays' => 'nullable|integer',
+            'song_file' => 'required|file|mimes:mp3,wav,ogg|max:20480', // 20MB
+            'cover_file' => 'nullable|image|mimes:jpg,jpeg,png|max:5120', // 5MB
         ];
     }
 

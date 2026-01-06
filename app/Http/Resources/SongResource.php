@@ -23,9 +23,10 @@ class SongResource extends JsonResource
             'year_id' => $this->year_id,
             'genre_id' => $this->genre_id,
             'duration' => $this->duration,
-            'path' => $this->path,
-            'cover_path' => $this->cover_path,
+            'path' => $this->path ? asset("storage/{$this->path}") : null,
+            'cover_path' => $this->cover_path ? asset("storage/{$this->cover_path}") : null,
             'plays' => $this->plays
+
         ];
     }
 }
