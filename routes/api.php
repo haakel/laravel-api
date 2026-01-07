@@ -21,7 +21,9 @@ Route::prefix('v1')->group(function () {
     
     // این Route‌ها برای songs
     Route::get('/songs', [SongController::class, 'index']);
+    Route::post('/datasong', [SongController::class, 'GetDataSong']);
     Route::post('/songs', [SongController::class, 'store']);
+
 });
 
 
