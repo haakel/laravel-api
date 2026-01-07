@@ -23,6 +23,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/songs', [SongController::class, 'index']);
     Route::post('/datasong', [SongController::class, 'GetDataSong']);
     Route::post('/songs', [SongController::class, 'store']);
+    Route::delete('/songs', [SongController::class, 'destroysong']);
+    Route::put('/songs', [SongController::class, 'editsong']);
 
 });
 
