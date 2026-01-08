@@ -41,7 +41,9 @@ class SongController extends Controller
             'plays' => 0,              // مقدار اولیه
         ]);
 
-        return new SongResource($song);
+            return (new SongResource($song))
+            ->response()
+            ->setStatusCode(201);
     }
 
     private function getAudioDuration(string $fullPath): int
