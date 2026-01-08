@@ -14,7 +14,6 @@ class EditSongRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'song_id' => 'required|integer|exists:songs,id',
             'title' => 'required|string|max:255',
             'artist_id' => 'required|exists:artists,id',
             'album' => 'nullable|string|max:255',

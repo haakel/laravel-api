@@ -14,7 +14,6 @@ class StoreSongRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|integer|exists:users,id',
             'title' => 'required|string|max:255',
             'artist_id' => 'required|exists:artists,id',
             'album' => 'nullable|string|max:255',

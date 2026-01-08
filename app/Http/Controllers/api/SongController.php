@@ -8,42 +8,70 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SongResource;
+use App\Http\Resources\ShowSongResource;
 use App\Http\Resources\DeleteSongResource;
 use App\Http\Requests\song\EditSongRequest;
+use App\Http\Requests\song\ShowSongRequest;
 use App\Http\Requests\song\StoreSongRequest;
-use App\Http\Requests\song\DeleteSongRequest;
 use App\Http\Requests\song\GetDataSongRequest;
+use App\Traits\AuthorizesUserSong;
+use Illuminate\Support\Str;
 
 
 class SongController extends Controller
 {
+
+    use AuthorizesUserSong; 
+    
     function index() {
         return  SongResource::collection(Song::paginate(10));
     }
 
     public function store(StoreSongRequest $request)
     {
+        $user = auth()->user(); // کاربر جاری
         $data = $request->validated();
-        $songPath = $request->file('song_file')->store('songs', 'public');
-        $coverPath = $request->hasFile('cover_file')? $request->file('cover_file')->store('covers', 'public'): null;
+
+        $time = time();
+        $titleSlug = Str::slug($data['title']); // تبدیل title به slug برای filename
+
+        // ذخیره فایل آهنگ
+        $songFile = $request->file('song_file');
+        $songExt = $songFile->getClientOriginalExtension();
+        $songFilename = "{$titleSlug}_{$user->id}_{$time}.{$songExt}";
+        $songPath = $songFile->storeAs('songs', $songFilename, 'public');
+
+        // ذخیره فایل کاور در صورت وجود
+        $coverFile = $request->file('cover_file');
+        if ($coverFile) {
+            $coverExt = $coverFile->getClientOriginalExtension();
+            $coverFilename = "{$titleSlug}_{$user->id}_{$time}.{$coverExt}";
+            $coverPath = $coverFile->storeAs('covers', $coverFilename, 'public');
+        } else {
+            $coverPath = null;
+        }
+
+        // محاسبه مدت زمان آهنگ
         $fullPath = storage_path('app/public/' . $songPath);
         $duration = $this->getAudioDuration($fullPath);
+
+        // ایجاد رکورد آهنگ
         $song = Song::create([
-            'user_id'    => $data['user_id'],
+            'user_id'    => $user->id, 
             'title'      => $data['title'],
             'artist_id'  => $data['artist_id'],
             'album'      => $data['album'] ?? null,
             'year_id'    => $data['year_id'] ?? null,
             'genre_id'   => $data['genre_id'] ?? null,
             'duration'   => $duration,
-            'path' => $songPath,       // مسیر ذخیره شده
-            'cover_path' => $coverPath, // مسیر ذخیره شده
-            'plays' => 0,              // مقدار اولیه
+            'path'       => $songPath,
+            'cover_path' => $coverPath,
+            'plays'      => 0,
         ]);
 
-            return (new SongResource($song))
-            ->response()
-            ->setStatusCode(201);
+        return (new SongResource($song))
+                ->response()
+                ->setStatusCode(201);
     }
 
     private function getAudioDuration(string $fullPath): int
@@ -55,29 +83,6 @@ class SongController extends Controller
             ? (int) round($info['playtime_seconds'])
             : 0;
     }
-
-    // public function GetDataSong(GetDataSongRequest $request)
-    // {
-    //     $getID3 = new getID3();
-    //     $songFile = $request->file('song_file');
-    //     $fullPath = $songFile->getRealPath();
-
-    //     $info = $getID3->analyze($fullPath);
-    //     Log::info('getID3 raw tags', ['tags' => json_encode($info['tags'])]);
-    //     \getid3_lib::CopyTagsToComments($info);
-
-    //     $getID3Data = [
-    //         'title'    => $info['comments_html']['title'][0] ?? $info['tags']['id3v2']['title'][0] ?? '',
-    //         'artist'   => $info['comments_html']['artist'][0] ?? $info['tags']['id3v2']['artist'][0] ?? '',
-    //         'album'    => $info['comments_html']['album'][0] ?? $info['tags']['id3v2']['album'][0] ?? '',
-    //         'year'     => $info['comments_html']['year'][0] ?? $info['tags']['id3v2']['year'][0] ?? '',
-    //         'genre'    => $info['comments_html']['genre'][0] ?? $info['tags']['id3v2']['genre'][0] ?? '',
-    //         'duration' => $info['playtime_seconds'] ?? 0,
-    //         'bitrate'  => $info['bitrate'] ?? 0,
-    //     ];
-
-    //     return response()->json($getID3Data);
-    // }
 
 
     public function GetDataSong(GetDataSongRequest $request)
@@ -156,10 +161,8 @@ class SongController extends Controller
             return response()->json(['message' => 'Song not found.'], 404);
         }
 
-        $user = auth()->user(); // کاربر لاگین کرده
-        if ($song->user_id !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        $this->authorizeSongOwner($song);
+
 
         $coverPath = $request->hasFile('cover_file') 
             ? $request->file('cover_file')->store('covers', 'public') 
@@ -177,23 +180,56 @@ class SongController extends Controller
         return new SongResource($song);
     }
 
-    public function destroysong(DeleteSongRequest $request)
+    public function destroysong($id)
     {
         // return response()->json(['message' => 'Song deleted successfully.'], 200);
-        $song = Song::find($request->song_id);
+        $song = Song::find($id);
         if (!$song) {
             return response()->json(['message' => 'Song not found.'], 404);
         }
 
-        $user = auth()->user();
-
-        
-        if ($song->user_id !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        $this->authorizeSongOwner($song);
 
         $song->delete();
         return new DeleteSongResource($song);
     }
+
+
+    public function show($id)
+    {
+        $song = Song::find($id);
+        if (!$song) {
+            return response()->json(['message' => 'Song not found.'], 404);
+        }
+        
+        $this->authorizeSongOwner($song);
+        
+        return new ShowSongResource($song);
+    }
+
+
+
+        // public function GetDataSong(GetDataSongRequest $request)
+    // {
+    //     $getID3 = new getID3();
+    //     $songFile = $request->file('song_file');
+    //     $fullPath = $songFile->getRealPath();
+
+    //     $info = $getID3->analyze($fullPath);
+    //     Log::info('getID3 raw tags', ['tags' => json_encode($info['tags'])]);
+    //     \getid3_lib::CopyTagsToComments($info);
+
+    //     $getID3Data = [
+    //         'title'    => $info['comments_html']['title'][0] ?? $info['tags']['id3v2']['title'][0] ?? '',
+    //         'artist'   => $info['comments_html']['artist'][0] ?? $info['tags']['id3v2']['artist'][0] ?? '',
+    //         'album'    => $info['comments_html']['album'][0] ?? $info['tags']['id3v2']['album'][0] ?? '',
+    //         'year'     => $info['comments_html']['year'][0] ?? $info['tags']['id3v2']['year'][0] ?? '',
+    //         'genre'    => $info['comments_html']['genre'][0] ?? $info['tags']['id3v2']['genre'][0] ?? '',
+    //         'duration' => $info['playtime_seconds'] ?? 0,
+    //         'bitrate'  => $info['bitrate'] ?? 0,
+    //     ];
+
+    //     return response()->json($getID3Data);
+    // }
 
 }

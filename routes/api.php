@@ -43,8 +43,9 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:api')->group(function () {
         Route::get('/songs', [SongController::class, 'index']);
         Route::post('/songs', [SongController::class, 'store']);
-        Route::delete('/songs', [SongController::class, 'destroysong']);
-        Route::put('/songs', [SongController::class, 'editsong']);
+        Route::delete('/songs/{id}', [SongController::class, 'destroysong']);
+        Route::patch('/songs', [SongController::class, 'editsong']);
+        Route::get('/songs/{id}', [SongController::class, 'show']);
     });
 
 });
