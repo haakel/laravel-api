@@ -148,6 +148,35 @@ class SongController extends Controller
         return response()->json($finalData, 200, [], JSON_UNESCAPED_UNICODE);
     }
 
+    public function editsong(EditSongRequest $request)
+    {
+        // return response()->json(['message' => 'Song edited successfully.'], 200);
+        $song = Song::find($request->song_id);
+        if (!$song) {
+            return response()->json(['message' => 'Song not found.'], 404);
+        }
+
+        $user = auth()->user(); // کاربر لاگین کرده
+        if ($song->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $coverPath = $request->hasFile('cover_file') 
+            ? $request->file('cover_file')->store('covers', 'public') 
+            : $song->cover_path;
+
+        $song->update([
+            'title'      => $request->title,
+            'artist_id'  => $request->artist_id,
+            'album'      => $request->album ?? null,
+            'year_id'    => $request->year_id ?? null,
+            'genre_id'   => $request->genre_id ?? null,
+            'cover_path' => $coverPath,
+        ]);
+
+        return new SongResource($song);
+    }
+
     public function destroysong(DeleteSongRequest $request)
     {
         // return response()->json(['message' => 'Song deleted successfully.'], 200);
@@ -156,30 +185,15 @@ class SongController extends Controller
             return response()->json(['message' => 'Song not found.'], 404);
         }
 
+        $user = auth()->user();
+
+        
+        if ($song->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $song->delete();
         return new DeleteSongResource($song);
-    }
-
-    public function editsong(EditSongRequest $request)
-    {
-        // return response()->json(['message' => 'Song edited successfully.'], 200);
-        $song = Song::find($request->song_id);
-        if (!$song) {
-            return response()->json(['message' => 'Song not found.'], 404);
-        }
-        $coverPath = $request->hasFile('cover_file')? $request->file('cover_file')->store('covers', 'public'): null;
-
-        log::info('EditSongRequest validated data', ['data' => $request->validated()]);
-        $song->update([
-            'title'      => $request->title,
-            'artist_id'  => $request->artist_id,
-            'album'      => $request->album ?? null,
-            'year_id'    => $request->year_id ?? null,
-            'genre_id'   => $request->genre_id ?? null,
-            'cover_path' => $coverPath ?? $song->cover_path,
-        ]);
-
-        return new SongResource($song);
     }
 
 }
