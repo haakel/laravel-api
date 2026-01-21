@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('cover_path')->nullable(); // مسیر ذخیره‌سازی کاور
             $table->integer('plays')->default(0); // تعداد پخش
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->boolean('is_public')->default(false);
             $table->string('cover_path')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
