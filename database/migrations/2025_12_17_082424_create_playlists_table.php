@@ -14,7 +14,6 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->boolean('is_public')->default(false);
-            $table->integer('order')->default(0);
             $table->string('cover_path')->nullable();
             $table->timestamps();
         });
@@ -24,4 +23,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('playlists');
     }
+
+    
 };

@@ -31,14 +31,27 @@ class Playlist extends Model
         return $this->belongsTo(User::class);
     }
 
+
+    public function playlists(): BelongsToMany
+    {
+        return $this->belongsToMany(Playlist::class)
+                    ->withPivot('position')
+                    ->withTimestamps();
+    }
+
     /**
-     * رابطه چند-به-چند با آهنگ‌ها از طریق جدول پیوت
+     * Playlist ↔ Songs
      */
     public function songs(): BelongsToMany
     {
-        return $this->belongsToMany(Song::class)
-                    ->withPivot('position') // شامل فیلد position از جدول پیوت شود
-                    ->orderBy('position') // به طور پیش‌فرض بر اساس position مرتب شود
-                    ->withTimestamps(); // شامل timestamps شود
+        return $this->belongsToMany(
+                Song::class,
+                'playlist_song',   // اسم جدول pivot
+                'playlist_id',
+                'song_id'
+            )
+            ->withPivot('position')
+            ->orderBy('position')
+            ->withTimestamps();
     }
 }

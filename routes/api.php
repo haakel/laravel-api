@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\DataController;
 use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\SongController;
+use App\Http\Controllers\api\PlaylistController;
+use App\Http\Controllers\api\PlaylistSongController;
 use App\Http\Controllers\AuthController;
 
 // این Route اول قرار داره
@@ -42,10 +44,22 @@ Route::prefix('v1')->group(function () {
     // protected (JWT)
     Route::middleware('auth:api')->group(function () {
         Route::get('/songs', [SongController::class, 'index']);
-        Route::post('/songs', [SongController::class, 'store']);
-        Route::delete('/songs/{id}', [SongController::class, 'destroysong']);
-        Route::patch('/songs', [SongController::class, 'editsong']);
-        Route::get('/songs/{id}', [SongController::class, 'show']);
+        Route::post('/song', [SongController::class, 'store']);
+        Route::delete('/song/{id}', [SongController::class, 'destroysong']);
+        Route::patch('/song', [SongController::class, 'editsong']);
+        Route::get('/song/{id}', [SongController::class, 'show']);
+
+    // playlists
+    Route::get('/playlists', [PlaylistController::class, 'index']);
+    Route::post('/playlist', [PlaylistController::class, 'store']);
+    Route::get('/playlist/{id}', [PlaylistController::class, 'show']);
+    Route::patch('/playlist/{id}', [PlaylistController::class, 'update']);
+    Route::delete('/playlist/{id}', [PlaylistController::class, 'destroy']);
+
+    // playlist songs
+    Route::post('/playlist/{playlistId}/songs', [PlaylistSongController::class, 'attach']);
+    Route::patch('/playlist/{playlistId}/songs/reorder', [PlaylistSongController::class, 'reorder']);
+    Route::delete('/playlist/{playlistId}/songs/{songId}', [PlaylistSongController::class, 'detach']);
     });
 
 });

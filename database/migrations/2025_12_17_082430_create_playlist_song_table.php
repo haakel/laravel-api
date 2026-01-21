@@ -11,10 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('playlist_song', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+    Schema::create('playlist_song', function (Blueprint $table) {
+        $table->id();
+
+        $table->foreignId('playlist_id')
+            ->constrained()
+            ->cascadeOnDelete();
+
+        $table->foreignId('song_id')
+            ->constrained()
+            ->cascadeOnDelete();
+
+        $table->unsignedInteger('position')->default(0);
+
+        $table->timestamps();
+
+        $table->unique(['playlist_id', 'song_id']);
+    });
+
     }
 
     /**
