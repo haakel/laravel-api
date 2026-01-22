@@ -1,160 +1,157 @@
-<body>
+# Laravel API – Songs & Playlists
 
-<h1>Laravel API Project</h1>
+## معرفی پروژه
 
-<section>
-    <h2>معرفی پروژه</h2>
-    <p>
-        این پروژه یک API مبتنی بر Laravel است که شامل احراز هویت JWT، مدیریت آهنگ‌ها و پلی‌لیست‌ها می‌باشد.
-    </p>
-</section>
+این پروژه یک RESTful API مبتنی بر **Laravel** است که با استفاده از **JWT Authentication** پیاده‌سازی شده و امکان مدیریت آهنگ‌ها و پلی‌لیست‌ها را فراهم می‌کند.
 
-<section>
-    <h2>پیش‌نیازها</h2>
-    <ul>
-        <li>PHP >= 8.1</li>
-        <li>Composer</li>
-        <li>MySQL / MariaDB</li>
-    </ul>
-</section>
+پروژه برای استفاده در اپلیکیشن موبایل یا فرانت‌اند SPA طراحی شده است.
 
-<section>
-    <h2>مراحل راه‌اندازی پروژه</h2>
+---
 
-<p>
-<h3>1. نصب وابستگی‌ها</h3>
-<pre><code>composer install</code></pre>
+## Tech Stack
 
-<h3>2. ساخت فایل env</h3>
-<pre><code>cp .env.example .env</code></pre>
+- PHP >= 8.1
+- Laravel 10+
+- MySQL / MariaDB
+- JWT Authentication (`tymon/jwt-auth`)
+- REST API (JSON)
 
-<p>تنظیم دیتابیس در فایل <code>.env</code>:</p>
-<pre><p>DB_DATABASE=database_name
-</p>
+---
 
+## نصب و راه‌اندازی
+
+### 1. نصب وابستگی‌ها
+
+```bash
+composer install
+2. ساخت فایل environment
+bash
+Copy code
+cp .env.example .env
+تنظیم دیتابیس در .env:
+
+env
+Copy code
+DB_DATABASE=database_name
 DB_USERNAME=username
-DB_PASSWORD=password</code></pre>
+DB_PASSWORD=password
+3. تولید App Key
+bash
+Copy code
+php artisan key:generate
+4. اجرای مایگریشن‌ها
+bash
+Copy code
+php artisan migrate
+5. لینک کردن Storage
+bash
+Copy code
+php artisan storage:link
+احراز هویت (Authentication)
+POST /api/login
+ورود کاربر و دریافت توکن JWT
 
+Request
+
+json
+Copy code
+{
+  "email": "user@example.com",
+  "password": "password"
+}
+Response
+
+json
+Copy code
+{
+  "access_token": "jwt_token_here",
+  "token_type": "bearer",
+  "expires_in": 3600
+}
+POST /api/register
+ثبت‌نام کاربر جدید
+
+Request
+
+json
+Copy code
+{
+  "name": "User Name",
+  "email": "user@example.com",
+  "password": "password",
+  "password_confirmation": "password"
+}
+POST /api/refresh
+تمدید توکن
+
+Header
+
+css
+Copy code
+Authorization: Bearer {token}
+POST /api/logout
+خروج کاربر
+
+Header
+
+css
+Copy code
+Authorization: Bearer {token}
+API Versioning
+bash
+Copy code
+Base URL: /api/v1
+Protected Routes
+تمام APIهای زیر نیاز به هدر احراز هویت دارند:
+
+css
+Copy code
+Authorization: Bearer {token}
+Songs API
+Method	Endpoint
+GET	/api/v1/songs
+POST	/api/v1/songs
+GET	/api/v1/songs/{id}
+PATCH	/api/v1/songs/{id}
+DELETE	/api/v1/songs/{id}
+
+Playlists API
+Method	Endpoint
+GET	/api/v1/playlists
+POST	/api/v1/playlists
+GET	/api/v1/playlists/{id}
+PATCH	/api/v1/playlists/{id}
+DELETE	/api/v1/playlists/{id}
+
+Playlist Songs
+Method	Endpoint
+POST	/api/v1/playlists/{playlistId}/songs
+PATCH	/api/v1/playlists/{playlistId}/songs/reorder
+DELETE	/api/v1/playlists/{playlistId}/songs/{songId}
+
+Error Handling
+API از HTTP Status Codeهای استاندارد استفاده می‌کند:
+
+200 Success
+
+401 Unauthorized
+
+403 Forbidden
+
+404 Not Found
+
+422 Validation Error
+
+500 Server Error
+
+نمونه خطای ولیدیشن:
+
+json
+Copy code
+{
+  "message": "The given data was invalid.",
+  "errors": {
+    "title": ["The title field is required."]
+  }
+}
 ```
-<h3>3. تولید APP KEY</h3>
-<pre><code>php artisan key:generate</code></pre>
-
-<h3>4. اجرای مایگریشن‌ها</h3>
-<pre><code>php artisan migrate</code></pre>
-
-<h3>5. لینک کردن storage</h3>
-<pre><code>php artisan storage:link</code></pre>
-```
-
-</section>
-
-<section>
-    <h2>احراز هویت (Authentication)</h2>
-
-```
-<div class="endpoint">
-    <strong>POST</strong> /api/login
-    <pre><code>{
-```
-
-"email": "[user@example.com](mailto:user@example.com)",
-"password": "password"
-}</code></pre> </div>
-
-```
-<div class="endpoint">
-    <strong>POST</strong> /api/register
-    <pre><code>{
-```
-
-"name": "string",
-"email": "string",
-"password": "string",
-"password_confirmation": "string"
-}</code></pre> </div>
-
-```
-<div class="endpoint">
-    <strong>POST</strong> /api/refresh
-    <p>Header:</p>
-    <pre><code>Authorization: Bearer {token}</code></pre>
-</div>
-
-<div class="endpoint">
-    <strong>POST</strong> /api/logout
-    <p>Header:</p>
-    <pre><code>Authorization: Bearer {token}</code></pre>
-</div>
-```
-
-</section>
-
-<section>
-    <h2>API Version v1</h2>
-    <p>Base URL:</p>
-    <pre><code>/api/v1</code></pre>
-
-```
-<div class="endpoint">
-    <strong>POST</strong> /datasong (Public)
-    <pre><code>// TODO: request parameters</code></pre>
-    <pre><code>// TODO: response</code></pre>
-</div>
-```
-
-</section>
-
-<section>
-    <h2>API های محافظت‌شده (JWT)</h2>
-    <p>تمام درخواست‌ها باید شامل هدر زیر باشند:</p>
-    <pre><code>Authorization: Bearer {token}</code></pre>
-</section>
-
-<section>
-    <h2>Songs</h2>
-
-```
-<div class="endpoint"><strong>GET</strong> /songs</div>
-<div class="endpoint"><strong>POST</strong> /song</div>
-<div class="endpoint"><strong>GET</strong> /song/{id}</div>
-<div class="endpoint"><strong>PATCH</strong> /song</div>
-<div class="endpoint"><strong>DELETE</strong> /song/{id}</div>
-```
-
-</section>
-
-<section>
-    <h2>Playlists</h2>
-
-```
-<div class="endpoint"><strong>GET</strong> /playlists</div>
-<div class="endpoint"><strong>POST</strong> /playlist</div>
-<div class="endpoint"><strong>GET</strong> /playlist/{id}</div>
-<div class="endpoint"><strong>PATCH</strong> /playlist/{id}</div>
-<div class="endpoint"><strong>DELETE</strong> /playlist/{id}</div>
-```
-
-</section>
-
-<section>
-    <h2>Playlist Songs</h2>
-
-```
-<div class="endpoint"><strong>POST</strong> /playlist/{playlistId}/songs</div>
-<div class="endpoint"><strong>PATCH</strong> /playlist/{playlistId}/songs/reorder</div>
-<div class="endpoint"><strong>DELETE</strong> /playlist/{playlistId}/songs/{songId}</div>
-```
-
-</section>
-
-<section>
-    <h2>TODO</h2>
-    <ul>
-        <li>تکمیل پارامترهای ورودی و خروجی APIها</li>
-        <li>اضافه کردن Error Responses</li>
-        <li>اضافه کردن Swagger / OpenAPI</li>
-    </ul>
-</section>
-
-</body>
-</html>
