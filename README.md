@@ -1,45 +1,3 @@
-<!DOCTYPE html>
-
-<html lang="fa">
-<head>
-    <meta charset="UTF-8">
-    <title>Laravel API Project - README</title>
-    <style>
-        body {
-            font-family: Tahoma, Arial, sans-serif;
-            line-height: 1.9;
-            background: #f7f7f7;
-            color: #222;
-            padding: 30px;
-        }
-        h1, h2, h3 {
-            color: #1f2937;
-        }
-        pre {
-            background: #111827;
-            color: #e5e7eb;
-            padding: 15px;
-            overflow-x: auto;
-            border-radius: 6px;
-        }
-        code {
-            color: #22c55e;
-        }
-        section {
-            background: #ffffff;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-        .endpoint {
-            background: #f1f5f9;
-            padding: 10px;
-            border-left: 4px solid #3b82f6;
-            margin: 10px 0;
-        }
-    </style>
-</head>
 <body>
 
 <h1>Laravel API Project</h1>
@@ -63,7 +21,7 @@
 <section>
     <h2>مراحل راه‌اندازی پروژه</h2>
 
-```
+<code>
 <h3>1. نصب وابستگی‌ها</h3>
 <pre><code>composer install</code></pre>
 
@@ -72,7 +30,7 @@
 
 <p>تنظیم دیتابیس در فایل <code>.env</code>:</p>
 <pre><code>DB_DATABASE=database_name
-```
+</code>
 
 DB_USERNAME=username
 DB_PASSWORD=password</code></pre>
