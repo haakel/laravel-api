@@ -21,7 +21,7 @@
 <section>
     <h2>مراحل راه‌اندازی پروژه</h2>
 
-<code>
+<p>
 <h3>1. نصب وابستگی‌ها</h3>
 <pre><code>composer install</code></pre>
 
@@ -29,8 +29,8 @@
 <pre><code>cp .env.example .env</code></pre>
 
 <p>تنظیم دیتابیس در فایل <code>.env</code>:</p>
-<pre><code>DB_DATABASE=database_name
-</code>
+<pre><p>DB_DATABASE=database_name
+</p>
 
 DB_USERNAME=username
 DB_PASSWORD=password</code></pre>
