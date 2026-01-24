@@ -14,12 +14,23 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     public function run(): void
-    {
-        // User::factory(10)->create();
+        {
+            // کاربران
+            $this->call(UserSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-    }
+            // هنرمندان
+            $this->call(ArtistSeeder::class);
+
+            // ژانرها
+            $this->call(GenreSeeder::class);
+
+            // سال‌ها
+            $this->call(YearSeeder::class);
+
+            // آهنگ‌ها
+            $this->call(SongSeeder::class);
+
+            // پلی‌لیست‌ها
+            $this->call(PlaylistSeeder::class);
+        }
 }
