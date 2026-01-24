@@ -26,14 +26,14 @@
 composer install
 ```
 
-## 2. ساخت فایل environment
+### 2. ساخت فایل environment
 
 ```bash
 Copy code
 cp .env.example .env
 ```
 
-## تنظیم دیتابیس در .env:
+### تنظیم دیتابیس در .env:
 
 ```bash
 env
@@ -43,31 +43,34 @@ DB_USERNAME=username
 DB_PASSWORD=password
 ```
 
-## 3. تولید App Key
+### 3. تولید App Key
 
 ```bash
 Copy code
 php artisan key:generate
 ```
 
-## 4. اجرای مایگریشن‌ها
+### 4. اجرای مایگریشن‌ها
 
 ```bash
 Copy code
 php artisan migrate
 ```
 
-## 5. لینک کردن Storage
+### 5. لینک کردن Storage
 
 ```bash
 Copy code
 php artisan storage:link
 ```
 
-احراز هویت (Authentication)
+## APIS
 
-- POST /api/login
-  ورود کاربر و دریافت توکن JWT
+### احراز هویت (Authentication)
+
+`POST /api/login`
+
+- ورود کاربر و دریافت توکن JWT
 
 ```bash
 Request
