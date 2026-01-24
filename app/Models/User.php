@@ -62,11 +62,14 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Playlist::class);
     }
+
+    
     public function favoriteSongs()
     {
-        return $this->belongsToMany(Song::class, 'user_favorites')
-            ->withTimestamps();
+        return $this->belongsToMany(Song::class)->withTimestamps();
     }
+
+
 
     public function getJWTIdentifier()
     {
@@ -77,6 +80,8 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    
 
 
 }

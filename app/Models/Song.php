@@ -58,15 +58,11 @@ class Song extends Model
                     ->withTimestamps(); // شامل timestamps شود
     }
 
-public function favoredByUsers()
-{
-    return $this->belongsToMany(
-        User::class,            // مدل مرتبط
-        'user_song_favorites',  // نام جدول میانی
-        'song_id',              // کلید جدول فعلی (Song) در جدول میانی
-        'user_id'               // کلید مدل مرتبط (User) در جدول میانی
-    )->withTimestamps();       // اگر ستون created_at و updated_at داری
-}
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
+    }
+
 
 
 }
