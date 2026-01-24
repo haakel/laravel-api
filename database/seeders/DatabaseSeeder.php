@@ -32,5 +32,9 @@ class DatabaseSeeder extends Seeder
 
             // ارتباط آهنگ‌ها با پلی‌لیست‌ها
             $this->call(PlaylistSongSeeder::class);
+            
+            // علاقه‌مندی‌های کاربران
+            $this->call(FavoriteSongsSeeder::class);
+
         }
 }
