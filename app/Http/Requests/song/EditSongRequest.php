@@ -18,7 +18,7 @@ class EditSongRequest extends FormRequest
             'title' => 'required|string|max:255',
             'artist_id' => 'required|exists:artists,id',
             'album' => 'nullable|string|max:255',
-            'year_id' => 'nullable|exists:years,id',
+            'year' => 'nullable|exists:years',
             'genre_id' => 'nullable|exists:genres,id',
             'cover_file' => 'nullable|image|mimes:jpg,jpeg,png|max:5120', // 5MB
         ];

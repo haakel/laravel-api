@@ -20,7 +20,7 @@ class SongResource extends JsonResource
             'title' => $this->title,
             'artist_id' => $this->artist_id,
             'album' => $this->album,
-            'year_id' => $this->year_id,
+            'year' => $this->year,
             'genre_id' => $this->genre_id,
             'duration' => $this->duration,
             'path' => $this->path ? asset("storage/{$this->path}") : null,

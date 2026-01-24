@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('title');
             $table->foreignId('artist_id')->constrained()->onDelete('cascade');
             $table->string('album')->nullable();
-            $table->foreignId('year_id')->nullable()->constrained()->onDelete('set null');
+            $table->integer('year')->nullable();
             $table->foreignId('genre_id')->nullable()->constrained()->onDelete('set null');
             $table->integer('duration')->default(0); // بر حسب ثانیه
             $table->string('path'); // مسیر ذخیره‌سازی فایل موسیقی

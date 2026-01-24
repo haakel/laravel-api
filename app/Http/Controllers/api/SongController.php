@@ -61,7 +61,7 @@ class SongController extends Controller
             'title'      => $data['title'],
             'artist_id'  => $data['artist_id'],
             'album'      => $data['album'] ?? null,
-            'year_id'    => $data['year_id'] ?? null,
+            'year'       => $data['year'] ?? null,
             'genre_id'   => $data['genre_id'] ?? null,
             'duration'   => $duration,
             'path'       => $songPath,
@@ -172,7 +172,7 @@ class SongController extends Controller
             'title'      => $request->title,
             'artist_id'  => $request->artist_id,
             'album'      => $request->album ?? null,
-            'year_id'    => $request->year_id ?? null,
+            'year'       => $request->year ?? null,
             'genre_id'   => $request->genre_id ?? null,
             'cover_path' => $coverPath,
         ]);
