@@ -68,6 +68,8 @@ php artisan jwt:secret
 
 ### احراز هویت (Authentication)
 
+### ورود
+
 #### Request
 
 `POST /api/login`
@@ -97,24 +99,52 @@ php artisan jwt:secret
 
 ```json
 {
-    "messenge": ""
+    "message": ""
+}
+```
+
+#### ثبت نام
+
+#### Request
+
+`POST /api/register`
+
+- ثبت‌ نام کاربر جدید
+
+`curl --location 'http://127.0.0.1:8000/api/register' \--header 'Content-Type: application/json' \ --header 'Accept: application/json' \`
+
+```json
+{
+    "name": "name",
+    "email": "1243234@test.com",
+    "password": "password",
+    "password_confirmation": "password"
+}
+```
+
+#### Response
+
+```json
+{
+    "access_token": "jwt_token_here",
+    "token_type": "bearer",
+    "expires_in": 3600
+}
+```
+
+#### Erorr
+
+```json
+{
+    "message": "",
+    "errors": {
+        "email": [""],
+        "password": [""]
+    }
 }
 ```
 
 ```bash
-POST /api/register
-ثبت‌نام کاربر جدید
-
-Request
-
-json
-Copy code
-{
-"name": "User Name",
-"email": "user@example.com",
-"password": "password",
-"password_confirmation": "password"
-}
 POST /api/refresh
 تمدید توکن
 
