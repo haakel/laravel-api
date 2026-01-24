@@ -29,15 +29,12 @@ composer install
 ### 2. ساخت فایل environment
 
 ```bash
-Copy code
 cp .env.example .env
 ```
 
 ### تنظیم دیتابیس در .env:
 
 ```bash
-env
-Copy code
 DB_DATABASE=database_name
 DB_USERNAME=username
 DB_PASSWORD=password
@@ -46,50 +43,65 @@ DB_PASSWORD=password
 ### 3. تولید App Key
 
 ```bash
-Copy code
 php artisan key:generate
 ```
 
 ### 4. اجرای مایگریشن‌ها
 
 ```bash
-Copy code
 php artisan migrate
 ```
 
 ### 5. لینک کردن Storage
 
 ```bash
-Copy code
 php artisan storage:link
 ```
 
-## APIS
+### 6. ساخت کلید jwt
+
+```bash
+php artisan jwt:secret
+```
+
+## API
 
 ### احراز هویت (Authentication)
+
+#### Request
 
 `POST /api/login`
 
 - ورود کاربر و دریافت توکن JWT
 
+`curl --location 'http://127.0.0.1:8000/api/login' \ --header 'Content-Type: application/json' \--header 'Accept: application/json' \`
+
+```json
+{
+    "email": "user@example.com",
+    "password": "password"
+}
+```
+
+#### Response
+
+```json
+{
+    "access_token": "jwt_token_here",
+    "token_type": "bearer",
+    "expires_in": 3600
+}
+```
+
+#### Erorr
+
+```json
+{
+    "messenge": ""
+}
+```
+
 ```bash
-Request
-
-json
-Copy code
-{
-  "email": "user@example.com",
-  "password": "password"
-}
-Response
-
-json
-Copy code
-{
-  "access_token": "jwt_token_here",
-  "token_type": "bearer",
-  "expires_in": 3600
-}
 POST /api/register
 ثبت‌نام کاربر جدید
 
@@ -98,10 +110,10 @@ Request
 json
 Copy code
 {
-  "name": "User Name",
-  "email": "user@example.com",
-  "password": "password",
-  "password_confirmation": "password"
+"name": "User Name",
+"email": "user@example.com",
+"password": "password",
+"password_confirmation": "password"
 }
 POST /api/refresh
 تمدید توکن
@@ -130,26 +142,26 @@ css
 Copy code
 Authorization: Bearer {token}
 Songs API
-Method	Endpoint
-GET	/api/v1/songs
-POST	/api/v1/songs
-GET	/api/v1/songs/{id}
-PATCH	/api/v1/songs/{id}
-DELETE	/api/v1/songs/{id}
+Method Endpoint
+GET /api/v1/songs
+POST /api/v1/songs
+GET /api/v1/songs/{id}
+PATCH /api/v1/songs/{id}
+DELETE /api/v1/songs/{id}
 
 Playlists API
-Method	Endpoint
-GET	/api/v1/playlists
-POST	/api/v1/playlists
-GET	/api/v1/playlists/{id}
-PATCH	/api/v1/playlists/{id}
-DELETE	/api/v1/playlists/{id}
+Method Endpoint
+GET /api/v1/playlists
+POST /api/v1/playlists
+GET /api/v1/playlists/{id}
+PATCH /api/v1/playlists/{id}
+DELETE /api/v1/playlists/{id}
 
 Playlist Songs
-Method	Endpoint
-POST	/api/v1/playlists/{playlistId}/songs
-PATCH	/api/v1/playlists/{playlistId}/songs/reorder
-DELETE	/api/v1/playlists/{playlistId}/songs/{songId}
+Method Endpoint
+POST /api/v1/playlists/{playlistId}/songs
+PATCH /api/v1/playlists/{playlistId}/songs/reorder
+DELETE /api/v1/playlists/{playlistId}/songs/{songId}
 
 Error Handling
 API از HTTP Status Codeهای استاندارد استفاده می‌کند:
@@ -171,9 +183,14 @@ API از HTTP Status Codeهای استاندارد استفاده می‌کند:
 json
 Copy code
 {
-  "message": "The given data was invalid.",
-  "errors": {
-    "title": ["The title field is required."]
-  }
+"message": "The given data was invalid.",
+"errors": {
+"title": ["The title field is required."]
 }
+}
+
+```
+
+```
+
 ```
