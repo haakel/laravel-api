@@ -49,7 +49,7 @@ php artisan key:generate
 ### 4. اجرای مایگریشن‌ها
 
 ```bash
-php artisan migrate
+php artisan migrate --seed
 ```
 
 ### 5. لینک کردن Storage
