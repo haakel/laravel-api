@@ -24,13 +24,13 @@ class DatabaseSeeder extends Seeder
             // ژانرها
             $this->call(GenreSeeder::class);
 
-            // سال‌ها
-            $this->call(YearSeeder::class);
-
             // آهنگ‌ها
             $this->call(SongSeeder::class);
 
             // پلی‌لیست‌ها
             $this->call(PlaylistSeeder::class);
+
+            // ارتباط آهنگ‌ها با پلی‌لیست‌ها
+            $this->call(PlaylistSongSeeder::class);
         }
 }
