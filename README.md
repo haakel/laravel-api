@@ -103,6 +103,8 @@ php artisan jwt:secret
 }
 ```
 
+---
+
 #### ثبت نام
 
 #### Request
