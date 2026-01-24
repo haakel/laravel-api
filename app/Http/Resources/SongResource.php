@@ -26,7 +26,6 @@ class SongResource extends JsonResource
             'path' => $this->path ? asset("storage/{$this->path}") : null,
             'cover_path' => $this->cover_path ? asset("storage/{$this->cover_path}") : null,
             'plays' => $this->plays
-
         ];
     }
 }
