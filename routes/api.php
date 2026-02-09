@@ -38,8 +38,6 @@ Route::post('/logout', [AuthController::class, 'logout']);
 
 
 Route::prefix('v1')->group(function () {
-    Route::post('/datasong', [SongController::class, 'GetDataSong']);
-    
     // public
     Route::post('/datasong', [SongController::class, 'GetDataSong']);
 
