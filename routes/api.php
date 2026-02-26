@@ -37,6 +37,10 @@ Route::post('/refresh', [AuthController::class, 'refresh']);
 Route::post('/logout', [AuthController::class, 'logout']);
 
 
+Route::post('/musicBrainz', [SongController::class, 'getbymusicBrainz']);
+
+
+
 Route::prefix('v1')->group(function () {
     // public
     Route::post('/datasong', [SongController::class, 'GetDataSong']);
@@ -60,10 +64,12 @@ Route::prefix('v1')->group(function () {
     Route::post('/playlist/{playlistId}/songs', [PlaylistSongController::class, 'attach']);
     Route::patch('/playlist/{playlistId}/songs/reorder', [PlaylistSongController::class, 'reorder']);
     Route::delete('/playlist/{playlistId}/songs/{songId}', [PlaylistSongController::class, 'detach']);
-    });
 
     Route::get('/favorites', [FavoriteSongController::class, 'index']);
     Route::post('/favorites/add', [FavoriteSongController::class, 'add']);
     Route::post('/favorites/remove', [FavoriteSongController::class, 'remove']);
+    });
+
+
 
 });

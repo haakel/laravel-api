@@ -84,6 +84,68 @@ class SongController extends Controller
             : 0;
     }
 
+    public function getbymusicBrainz(Request $request)
+    {
+        $data = $request->validate([
+            'name'   => 'required|string',
+            'artist' => 'nullable|string',
+        ]);
+
+        $searchParts = array_filter([
+            $data['name'],
+            $data['artist'] ?? null
+        ]);
+
+        $mbQuery = urlencode(trim(implode(' ', $searchParts)));
+
+        $mbUrl = "https://musicbrainz.org/ws/2/recording/?query={$mbQuery}&fmt=json&limit=5";
+
+        $ch = curl_init($mbUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_USERAGENT => 'MyMusicApp/1.0 (akbarihamid80@gmail.com)',
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_CONNECTTIMEOUT => 5,
+        ]);
+
+        $mbResponse = curl_exec($ch);
+        $httpCode   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if (!$mbResponse || $httpCode !== 200) {
+            return response()->json([
+                'message' => 'MusicBrainz request failed'
+            ], 500);
+        }
+
+        $mbData = json_decode($mbResponse, true);
+
+        if (empty($mbData['recordings'])) {
+            return response()->json([
+                'message' => 'No recording found',
+                'query'   => $mbQuery
+            ], 404);
+        }
+
+        $results = [];
+
+        foreach ($mbData['recordings'] as $rec) {
+            $results[] = [
+                'title'  => $rec['title'] ?? '',
+                'artist' => $rec['artist-credit'][0]['name'] ?? '',
+                'album'  => $rec['releases'][0]['title'] ?? '',
+                'year'   => substr($rec['releases'][0]['date'] ?? '', 0, 4),
+            ];
+        }
+
+        return response()->json([
+            'count'   => count($results),
+            'results' => $results
+        ]);
+    }
+
 
     public function GetDataSong(GetDataSongRequest $request)
     {

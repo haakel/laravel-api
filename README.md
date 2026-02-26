@@ -78,7 +78,7 @@ php artisan jwt:secret
 
 ```json
 {
-    "email": "user@example.com",
+    "email": "hamid@example.com",
     "password": "password"
 }
 ```
@@ -90,7 +90,7 @@ curl --location 'http://127.0.0.1:8000/api/register' \
 --header 'Content-Type: application/json' \
 --header 'Accept: application/json' \
 --data '{
-    "email": "user@example.com",
+    "email": "hamid@example.com",
     "password": "password"
 }'
 ```
