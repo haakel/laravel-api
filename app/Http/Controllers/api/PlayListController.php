@@ -2,115 +2,89 @@
 
 namespace App\Http\Controllers\api;
 
-
-use App\Models\Playlist;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\PlaylistResource;
 use App\Http\Requests\playlist\StorePlaylistRequest;
 use App\Http\Requests\playlist\UpdatePlaylistRequest;
+use App\Http\Resources\PlaylistResource;
+use App\Http\Traits\ApiResponse;
+use App\Models\Playlist;
+use App\Services\PlaylistService;
+use Illuminate\Http\JsonResponse;
 
 class PlaylistController extends Controller
 {
-    public function index()
+    use ApiResponse;
+
+    public function __construct(protected PlaylistService $service) {}
+
+    public function index(): JsonResponse
     {
-        return PlaylistResource::collection(
-            auth()->user()
-                ->playlists()
-                ->withCount('songs')
-                ->latest()
-                ->paginate(10)
+        $playlists = $this->service->getAllByUser(auth()->id());
+
+        return $this->paginatedResponse(PlaylistResource::collection($playlists));
+    }
+
+    public function store(StorePlaylistRequest $request): JsonResponse
+    {
+        $playlist = $this->service->create(
+            $request->validated(),
+            $request->file('cover')
+        );
+
+        return $this->successResponse(
+            new PlaylistResource($playlist),
+            'Playlist created successfully',
+            201
         );
     }
 
-        public function store(StorePlaylistRequest $request)
-        {
-            $data = $request->validated(); 
-
-            $playlist = Playlist::create([
-                'user_id' => auth()->id(),
-                'name' => $data['name'],
-                'description' => $data['description'] ?? null,
-                'is_public' => $data['is_public'] ?? false,
-                'cover_path' => $request->hasFile('cover')
-                    ? $request->file('cover')->store('playlist-covers', 'public')
-                    : null,
-            ]);
-
-
-            if (!empty($data['song_ids'])) {
-                $syncData = [];
-
-                foreach ($data['song_ids'] as $index => $songId) {
-                    $syncData[$songId] = [
-                        'position' => $index,
-                    ];
-                }
-
-                $playlist->songs()->sync($syncData);
-            }
-
-            return new PlaylistResource(
-                $playlist->load('songs')
-            );
-        }
-
-
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
-        $playlist = Playlist::with('songs')->findOrFail($id);
+        $playlist = $this->service->getById($id);
 
-        if (!$playlist->is_public && $playlist->user_id !== auth()->id()) {
-            abort(403);
+        if (!$playlist) {
+            return $this->errorResponse('Playlist not found', 404);
         }
 
-        return new PlaylistResource($playlist);
+        $this->authorize('view', $playlist);
+
+        return $this->successResponse(new PlaylistResource($playlist));
     }
 
-    public function update(UpdatePlaylistRequest $request, $id)
+    public function update(UpdatePlaylistRequest $request, int $id): JsonResponse
     {
-        $playlist = Playlist::findOrFail($id);
+        $playlist = $this->service->getById($id);
 
-        if ($playlist->user_id !== auth()->id()) {
-            abort(403);
+        if (!$playlist) {
+            return $this->errorResponse('Playlist not found', 404);
         }
 
-        $data = $request->validated();
+        $this->authorize('update', $playlist);
 
+        $updated = $this->service->update(
+            $request->validated(),
+            $playlist,
+            $request->file('cover')
+        );
 
-        $playlist->update([
-            'name' => $data['name'] ?? $playlist->name,
-            'description' => $data['description'] ?? $playlist->description,
-            'is_public' => $data['is_public'] ?? $playlist->is_public,
-            'cover_path' => $request->hasFile('cover')
-                ? $request->file('cover')->store('playlist-covers', 'public')
-                : $playlist->cover_path,
-        ]);
-
-
-        if (!empty($data['song_ids'])) {
-            $syncData = [];
-            foreach ($data['song_ids'] as $index => $songId) {
-                $syncData[$songId] = ['position' => $index];
-            }
-            $playlist->songs()->sync($syncData);
-        }
-
-        return new PlaylistResource(
-            $playlist->load('songs')
+        return $this->successResponse(
+            new PlaylistResource($updated),
+            'Playlist updated successfully'
         );
     }
 
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
-        $playlist = Playlist::findOrFail($id);
+        $playlist = $this->service->getById($id);
 
-        if ($playlist->user_id !== auth()->id()) {
-            abort(403);
+        if (!$playlist) {
+            return $this->errorResponse('Playlist not found', 404);
         }
 
-        $playlist->delete();
+        $this->authorize('delete', $playlist);
 
-        return response()->json(['message' => 'Playlist deleted']);
+        $this->service->delete($playlist);
+
+        return $this->successResponse(null, 'Playlist deleted successfully');
     }
 }

@@ -2,78 +2,68 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Models\Playlist;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PlaylistSong\AttachSongRequest;
+use App\Http\Requests\PlaylistSong\ReorderSongsRequest;
+use App\Http\Traits\ApiResponse;
+use App\Models\Playlist;
+use App\Services\PlaylistService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class PlaylistSongController extends Controller
 {
-    public function attach(Request $request, $playlistId)
+    use ApiResponse;
+
+    public function __construct(protected PlaylistService $service) {}
+
+    public function attach(AttachSongRequest $request, int $playlistId): JsonResponse
     {
-        $request->validate([
-            'song_id' => 'required|exists:songs,id',
-        ]);
+        $playlist = Playlist::find($playlistId);
 
-        $playlist = Playlist::findOrFail($playlistId);
-
-        if ($playlist->user_id !== auth()->id()) {
-            abort(403);
+        if (!$playlist) {
+            return $this->errorResponse('Playlist not found', 404);
         }
 
-        $lastPosition = $playlist->songs()->max('position') ?? 0;
+        $this->authorize('manageSongs', $playlist);
 
-        $playlist->songs()->syncWithoutDetaching([
-            $request->song_id => ['position' => $lastPosition + 1]
-        ]);
+        if ($playlist->songs()->where('song_id', $request->song_id)->exists()) {
+            return $this->errorResponse('This song is already in the playlist', 409);
+        }
 
-        return response()->json(['message' => 'Song added to playlist']);
+        $this->service->attachSong($playlist, $request->song_id);
+
+        return $this->successResponse(null, 'Song added to playlist');
     }
 
-    public function detach($playlistId, $songId)
+    public function detach(int $playlistId, int $songId): JsonResponse
     {
-        $playlist = Playlist::findOrFail($playlistId);
+        $playlist = Playlist::find($playlistId);
 
-        if ($playlist->user_id !== auth()->id()) {
-            abort(403);
+        if (!$playlist) {
+            return $this->errorResponse('Playlist not found', 404);
         }
 
-        $playlist->songs()->detach($songId);
+        $this->authorize('manageSongs', $playlist);
 
-        return response()->json(['message' => 'Song removed from playlist']);
+        $this->service->detachSong($playlist, $songId);
+
+        return $this->successResponse(null, 'Song removed from playlist');
     }
 
-    /**
-     * reorder songs (drag & drop)
-     * کتابخونه drag & drop
-     * function moveItem(array, from, to) {
-     *  const updated = [...array];
-     *  const [item] = updated.splice(from, 1);
-     *  updated.splice(to, 0, item);
-     *  return updated;
-     *  }
-     * payload: [ { id: 9 }, { id: 5 }, { id: 2 }, { id: 1 },]
-     */
-    public function reorder(Request $request, $playlistId)
+    public function reorder(ReorderSongsRequest $request, int $playlistId): JsonResponse
     {
-        $playlist = Playlist::findOrFail($playlistId);
+        $playlist = Playlist::find($playlistId);
 
-        if ($playlist->user_id !== auth()->id()) {
-            abort(403);
+        if (!$playlist) {
+            return $this->errorResponse('Playlist not found', 404);
         }
 
-        $request->validate([
-            'song_ids' => 'required|array',
-            'song_ids.*' => 'exists:songs,id',
-        ]);
+        $this->authorize('manageSongs', $playlist);
 
-        foreach ($request->song_ids as $index => $songId) {
-            $playlist->songs()->updateExistingPivot(
-                $songId,
-                ['position' => $index + 1]
-            );
-        }
+        $this->service->reorderSongs($playlist, $request->song_ids);
 
-        return response()->json(['message' => 'Playlist reordered']);
+        return $this->successResponse(null, 'Playlist reordered successfully');
     }
-
 }

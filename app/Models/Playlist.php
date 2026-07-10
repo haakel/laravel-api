@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Playlist extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -20,36 +21,17 @@ class Playlist extends Model
     ];
 
     protected $casts = [
-        'is_public' => 'boolean', // تضمین می‌کند که is_public به عنوان boolean ذخیره شود
+        'is_public' => 'boolean',
     ];
 
-    /**
-     * رابطه چند-به-یک با کاربر (سازنده پلی‌لیست)
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-
-    public function playlists(): BelongsToMany
-    {
-        return $this->belongsToMany(Playlist::class)
-                    ->withPivot('position')
-                    ->withTimestamps();
-    }
-
-    /**
-     * Playlist ↔ Songs
-     */
     public function songs(): BelongsToMany
     {
-        return $this->belongsToMany(
-                Song::class,
-                'playlist_song',   // اسم جدول pivot
-                'playlist_id',
-                'song_id'
-            )
+        return $this->belongsToMany(Song::class, 'playlist_song', 'playlist_id', 'song_id')
             ->withPivot('position')
             ->orderBy('position')
             ->withTimestamps();

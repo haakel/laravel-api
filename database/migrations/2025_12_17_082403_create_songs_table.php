@@ -10,11 +10,11 @@ return new class extends Migration
     {
         Schema::create('songs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // آپلودکننده
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->foreignId('artist_id')->constrained()->onDelete('cascade');
             $table->string('album')->nullable();
-            $table->integer('year')->nullable();
+            $table->foreignId('year_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('genre_id')->nullable()->constrained()->onDelete('set null');
             $table->integer('duration')->default(0); // بر حسب ثانیه
             $table->string('path'); // مسیر ذخیره‌سازی فایل موسیقی

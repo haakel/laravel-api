@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Song extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -24,15 +25,11 @@ class Song extends Model
         'plays',
     ];
 
-    
-
-    /**
-     * رابطه چند-به-یک با کاربر (آپلودکننده آهنگ)
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+
     public function genre(): BelongsTo
     {
         return $this->belongsTo(Genre::class);
@@ -48,21 +45,16 @@ class Song extends Model
         return $this->belongsTo(Artist::class);
     }
 
-    /**
-     * رابطه چند-به-چند با پلی‌لیست‌ها از طریق جدول پیوت
-     */
     public function playlists(): BelongsToMany
     {
         return $this->belongsToMany(Playlist::class)
-                    ->withPivot('position') // شامل فیلد position از جدول پیوت شود
-                    ->withTimestamps(); // شامل timestamps شود
+            ->withPivot('position')
+            ->withTimestamps();
     }
 
-    public function favoritedBy()
+    public function favoritedBy(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)->withTimestamps();
+        return $this->belongsToMany(User::class, 'song_user')
+            ->withTimestamps();
     }
-
-
-
 }

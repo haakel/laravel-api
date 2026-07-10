@@ -2,66 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Traits\ApiResponse;
+use App\Services\AuthService;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
-    {
-        $credentials = $request->only(['email', 'password']);
+    use ApiResponse;
 
-        if (!$token = auth('api')->attempt($credentials)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+    public function __construct(protected AuthService $service) {}
+
+    public function login(LoginRequest $request)
+    {
+        $result = $this->service->login($request->validated());
+
+        if (!$result) {
+            return $this->errorResponse('Invalid credentials', 401);
         }
 
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60
-        ]);
+        return $this->successResponse($result, 'Login successful');
     }
-    
-    public function register(Request $request)
+
+    public function register(RegisterRequest $request)
     {
-        $data = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        $result = $this->service->register($request->validated());
 
-        $user = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
-
-        $token = auth('api')->login($user);
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type'   => 'bearer',
-            'expires_in'   => auth('api')->factory()->getTTL() * 60,
-        ], 201);
+        return $this->successResponse($result, 'Registration successful', 201);
     }
 
     public function refresh()
     {
-        return response()->json([
-            'access_token' => auth('api')->refresh(),
-            'token_type'   => 'bearer',
-            'expires_in'   => auth('api')->factory()->getTTL() * 60,
-        ]);
+        $result = $this->service->refresh();
+
+        if (!$result) {
+            return $this->errorResponse('Token could not be refreshed', 401);
+        }
+
+        return $this->successResponse($result, 'Token refreshed');
     }
 
     public function logout()
     {
-        auth('api')->logout();
+        $this->service->logout();
 
-        return response()->json([
-            'message' => 'Successfully logged out',
-        ]);
+        return $this->successResponse(null, 'Successfully logged out');
     }
-
 }

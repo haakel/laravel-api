@@ -1,43 +1,42 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Song;
+use App\Http\Requests\FavoriteSong\AddFavoriteRequest;
+use App\Http\Requests\FavoriteSong\RemoveFavoriteRequest;
+use App\Http\Resources\FavoriteSongResource;
+use App\Http\Traits\ApiResponse;
+use App\Services\FavoriteService;
+use Illuminate\Http\JsonResponse;
 
 class FavoriteSongController extends Controller
 {
-    // گرفتن آهنگ‌های مورد علاقه کاربر
-    public function index(Request $request)
+    use ApiResponse;
+
+    public function __construct(protected FavoriteService $service) {}
+
+    public function index(): JsonResponse
     {
-        $user = $request->user(); // با JWT یا auth
-        return response()->json($user->favoriteSongs, 200);
+        $favorites = $this->service->getAll(auth()->id());
+
+        return $this->successResponse(
+            FavoriteSongResource::collection($favorites),
+            'Favorites retrieved successfully'
+        );
     }
 
-    // اضافه کردن آهنگ به علاقه‌مندی
-    public function add(Request $request)
+    public function add(AddFavoriteRequest $request): JsonResponse
     {
-        $request->validate([
-            'song_id' => 'required|exists:songs,id',
-        ]);
+        $this->service->add(auth()->id(), $request->song_id);
 
-        $user = $request->user();
-        $user->favoriteSongs()->syncWithoutDetaching($request->song_id);
-
-        return response()->json(['message' => 'Song added to favorites'], 200);
+        return $this->successResponse(null, 'Song added to favorites');
     }
 
-    // حذف آهنگ از علاقه‌مندی
-    public function remove(Request $request)
+    public function remove(RemoveFavoriteRequest $request): JsonResponse
     {
-        $request->validate([
-            'song_id' => 'required|exists:songs,id',
-        ]);
+        $this->service->remove(auth()->id(), $request->song_id);
 
-        $user = $request->user();
-        $user->favoriteSongs()->detach($request->song_id);
-
-        return response()->json(['message' => 'Song removed from favorites'], 200);
+        return $this->successResponse(null, 'Song removed from favorites');
     }
 }

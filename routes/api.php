@@ -1,75 +1,52 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\api\DataController;
-use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\SongController;
 use App\Http\Controllers\api\PlaylistController;
 use App\Http\Controllers\api\PlaylistSongController;
+use App\Http\Controllers\api\FavoriteSongController;
 use App\Http\Controllers\AuthController;
 
-// این Route اول قرار داره
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
-// Route مربوط به data کامنت شده
-// Route::get('/data', [DataController::class]);
-// پیشوند v1
-// Route::prefix('v1')->group(function () {
-//     Route::post('/categories', [CategoryController::class, 'store']);
-//     Route::put('/categories/{id}', [CategoryController::class, 'update']);
-//     Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
-    
-//     // این Route‌ها برای songs
-//     Route::get('/songs', [SongController::class, 'index']);
-//     Route::post('/datasong', [SongController::class, 'GetDataSong']);
-//     Route::post('/songs', [SongController::class, 'store']);
-//     Route::delete('/songs', [SongController::class, 'destroysong']);
-//     Route::put('/songs', [SongController::class, 'editsong']);
-
-// });
-
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/refresh', [AuthController::class, 'refresh']);
-Route::post('/logout', [AuthController::class, 'logout']);
-
-
-Route::post('/musicBrainz', [SongController::class, 'getbymusicBrainz']);
-
-
-
 Route::prefix('v1')->group(function () {
-    // public
-    Route::post('/datasong', [SongController::class, 'GetDataSong']);
 
-    // protected (JWT)
+    // Auth routes
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
+
+    // Public routes
+    Route::post('/songs/metadata', [SongController::class, 'getMetadata']);
+    Route::post('/songs/search-musicbrainz', [SongController::class, 'searchMusicBrainz']);
+    Route::get('/songs/search', [SongController::class, 'search']);
+
+    // Protected routes (JWT)
     Route::middleware('auth:api')->group(function () {
+
+        // Songs
         Route::get('/songs', [SongController::class, 'index']);
-        Route::post('/song', [SongController::class, 'store']);
-        Route::delete('/song/{id}', [SongController::class, 'destroysong']);
-        Route::patch('/song', [SongController::class, 'editsong']);
-        Route::get('/song/{id}', [SongController::class, 'show']);
+        Route::get('/songs/search', [SongController::class, 'search']);
+        Route::post('/songs', [SongController::class, 'store']);
+        Route::get('/songs/{id}', [SongController::class, 'show']);
+        Route::get('/songs/{id}/stream', [SongController::class, 'stream']);
+        Route::put('/songs/{id}', [SongController::class, 'update']);
+        Route::delete('/songs/{id}', [SongController::class, 'destroy']);
 
-    // playlists
-    Route::get('/playlists', [PlaylistController::class, 'index']);
-    Route::post('/playlist', [PlaylistController::class, 'store']);
-    Route::get('/playlist/{id}', [PlaylistController::class, 'show']);
-    Route::patch('/playlist/{id}', [PlaylistController::class, 'update']);
-    Route::delete('/playlist/{id}', [PlaylistController::class, 'destroy']);
+        // Playlists
+        Route::get('/playlists', [PlaylistController::class, 'index']);
+        Route::post('/playlists', [PlaylistController::class, 'store']);
+        Route::get('/playlists/{id}', [PlaylistController::class, 'show']);
+        Route::put('/playlists/{id}', [PlaylistController::class, 'update']);
+        Route::delete('/playlists/{id}', [PlaylistController::class, 'destroy']);
 
-    // playlist songs
-    Route::post('/playlist/{playlistId}/songs', [PlaylistSongController::class, 'attach']);
-    Route::patch('/playlist/{playlistId}/songs/reorder', [PlaylistSongController::class, 'reorder']);
-    Route::delete('/playlist/{playlistId}/songs/{songId}', [PlaylistSongController::class, 'detach']);
+        // Playlist Songs
+        Route::post('/playlists/{playlistId}/songs', [PlaylistSongController::class, 'attach']);
+        Route::patch('/playlists/{playlistId}/songs/reorder', [PlaylistSongController::class, 'reorder']);
+        Route::delete('/playlists/{playlistId}/songs/{songId}', [PlaylistSongController::class, 'detach']);
 
-    Route::get('/favorites', [FavoriteSongController::class, 'index']);
-    Route::post('/favorites/add', [FavoriteSongController::class, 'add']);
-    Route::post('/favorites/remove', [FavoriteSongController::class, 'remove']);
+        // Favorites
+        Route::get('/favorites', [FavoriteSongController::class, 'index']);
+        Route::post('/favorites', [FavoriteSongController::class, 'add']);
+        Route::delete('/favorites', [FavoriteSongController::class, 'remove']);
     });
-
-
-
 });

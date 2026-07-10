@@ -16,7 +16,7 @@ class StorePlaylistRequest extends FormRequest
         return [
             'name'       => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'is_public'   => ['boolean'],
+            'is_public'   => ['sometimes', 'in:true,false,1,0,"true","false"'],
             'song_ids'    => ['nullable', 'array'],
             'song_ids.*'  => ['integer', 'exists:songs,id'],
         ];

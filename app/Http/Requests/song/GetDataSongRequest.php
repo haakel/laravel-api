@@ -14,7 +14,7 @@ class GetDataSongRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'song_file' => 'required|file|mimes:mp3,wav,ogg|max:51200', // 50MB
+            'song_file' => 'required|file|mimes:mp3,wav,ogg,m4a,aac,mp4|max:51200', // 50MB
         ];
     }
 

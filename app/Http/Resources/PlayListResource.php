@@ -14,10 +14,13 @@ class PlaylistResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'is_public' => $this->is_public,
-            'cover_path' => $this->cover_path ? asset("storage/playlist/{$this->cover_path}") : null,
+            'cover_url' => $this->cover_path
+                ? asset("storage/{$this->cover_path}")
+                : asset('images/default-cover.jpg'),
             'songs_count' => $this->whenCounted('songs'),
             'songs' => SongResource::collection($this->whenLoaded('songs')),
             'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

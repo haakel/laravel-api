@@ -1,506 +1,256 @@
-# Laravel API – Songs & Playlists
+<div align="center">
 
-## معرفی پروژه
-
-این پروژه یک RESTful API مبتنی بر **Laravel** است که با استفاده از **JWT Authentication** پیاده‌سازی شده و امکان مدیریت آهنگ‌ها و پلی‌لیست‌ها را فراهم می‌کند.
-
-پروژه برای استفاده در اپلیکیشن موبایل یا فرانت‌اند SPA طراحی شده است.
+[🇬🇧 English](#) | [🇮🇷 فارسی](README.fa.md)
 
 ---
 
-## Tech Stack
+# 🎵 Laravel Music API
 
-- PHP >= 8.1
-- Laravel 10+
-- MySQL / MariaDB
-- JWT Authentication (`tymon/jwt-auth`)
-- REST API (JSON)
+**A RESTful music management API built with Laravel — JWT authentication, song/playlist management, streaming, and MusicBrainz integration.**
+
+Built with ❤️ by **Hamid Akbari** — [melipayamak.com](https://melipayamak.com)
+
+</div>
 
 ---
 
-## نصب و راه‌اندازی
+## ✨ Features
 
-### 1. نصب وابستگی‌ها
+- 🔐 **JWT Authentication** — register, login, refresh, logout
+- 🎶 **Song Management** — upload, stream, search, filter, metadata extraction
+- 📂 **Playlist Management** — create, reorder, public/private
+- ❤️ **Favorites** — add/remove favorite songs
+- 🧠 **MusicBrainz Integration** — auto-tagging from audio fingerprint
+- 🖼️ **Default Cover** — automatic fallback when no cover uploaded
+- 🔍 **Search & Filters** — filter songs by title, artist, album, genre, year
+- 📦 **Spatie Media Library** — file management with conversions
+- 👮 **Authorization Policies** — per-user ownership enforcement
+
+---
+
+## 🛠 Tech Stack
+
+| Tech | Version |
+|------|---------|
+| PHP | ^8.2 |
+| Laravel | ^12.0 |
+| MySQL / MariaDB | — |
+| JWT Auth | `tymon/jwt-auth` ^2.2 |
+| Audio Parsing | `james-heinrich/getid3` ^1.9 |
+| Media Library | `spatie/laravel-medialibrary` ^11.0 |
+| Image Processing | `intervention/image` ^3.11 |
+| Testing | Pest PHP ^4.2 |
+
+---
+
+## 🚀 Quick Start
+
+### 1. Clone & Install
 
 ```bash
+git clone <repo-url>
+cd laravel-api
 composer install
+npm install && npm run build
 ```
 
-### 2. ساخت فایل environment
+### 2. Environment Setup
 
 ```bash
 cp .env.example .env
 ```
 
-### تنظیم دیتابیس در .env:
+Configure your database in `.env`:
 
-```bash
-DB_DATABASE=database_name
-DB_USERNAME=username
-DB_PASSWORD=password
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel_api
+DB_USERNAME=root
+DB_PASSWORD=
 ```
 
-### 3. تولید App Key
+### 3. Generate Keys & Migrate
 
 ```bash
 php artisan key:generate
-```
-
-### 4. اجرای مایگریشن‌ها
-
-```bash
-php artisan migrate --seed
-```
-
-### 5. لینک کردن Storage
-
-```bash
+php artisan jwt:secret
+php artisan migrate:fresh --seed
 php artisan storage:link
 ```
 
-### 6. ساخت کلید jwt
+### 4. Serve
 
 ```bash
-php artisan jwt:secret
-```
-
-## API Account
-
-### احراز هویت (Authentication)
-
-### ورود
-
-#### Request
-
-`POST /api/login`
-
-- ورود کاربر و دریافت توکن JWT
-
-```json
-{
-    "email": "hamid@example.com",
-    "password": "password"
-}
-```
-
-#### cURL Example
-
-```bash
-curl --location 'http://127.0.0.1:8000/api/register' \
---header 'Content-Type: application/json' \
---header 'Accept: application/json' \
---data '{
-    "email": "hamid@example.com",
-    "password": "password"
-}'
-```
-
-#### Response
-
-```json
-{
-    "access_token": "jwt_token_here",
-    "token_type": "bearer",
-    "expires_in": 3600
-}
-```
-
-#### Erorr
-
-```json
-{
-    "message": ""
-}
+php artisan serve
 ```
 
 ---
 
-### ثبت نام
+## 🔑 Default Test Account
 
-#### Request
+After running seeder:
 
-`POST /api/register`
+| Email | Password |
+|-------|----------|
+| `hamid@example.com` | `password` |
+| `bob@example.com` | `password123` |
 
-- ثبت‌ نام کاربر جدید
+---
 
+## 📡 API Endpoints
+
+Base URL: `http://localhost:8000/api/v1`
+
+### Auth (Public)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/register` | Register new user |
+| `POST` | `/login` | Login & get JWT token |
+| `POST` | `/refresh` | Refresh JWT token |
+| `POST` | `/logout` | Invalidate token (auth) |
+
+### Songs
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/songs` | List songs (filters: `?title=&artist_id=&album=&genre_id=&year_id=`) |
+| `GET` | `/songs/search` | Search songs (same filters) |
+| `POST` | `/songs` | Upload new song (`multipart/form-data`) |
+| `GET` | `/songs/{id}` | Show song details |
+| `GET` | `/songs/{id}/stream` | Stream audio file |
+| `PUT` | `/songs/{id}` | Update song info |
+| `DELETE` | `/songs/{id}` | Delete song |
+| `POST` | `/songs/metadata` | Extract metadata from audio file |
+| `POST` | `/songs/search-musicbrainz` | Search MusicBrainz database |
+
+### Playlists
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/playlists` | List user playlists |
+| `POST` | `/playlists` | Create playlist |
+| `GET` | `/playlists/{id}` | Show playlist |
+| `PUT` | `/playlists/{id}` | Update playlist |
+| `DELETE` | `/playlists/{id}` | Delete playlist |
+
+### Playlist Songs
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/playlists/{id}/songs` | Add song to playlist |
+| `PATCH` | `/playlists/{id}/songs/reorder` | Reorder songs |
+| `DELETE` | `/playlists/{id}/songs/{songId}` | Remove song from playlist |
+
+### Favorites
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/favorites` | List favorite songs |
+| `POST` | `/favorites` | Add song to favorites |
+| `DELETE` | `/favorites` | Remove song from favorites |
+
+---
+
+## 📦 Upload Limits
+
+| File Type | Max Size | Allowed Formats |
+|-----------|----------|-----------------|
+| Song file | **50 MB** | `mp3`, `wav`, `ogg`, `m4a`, `aac`, `mp4` |
+| Cover image | **5 MB** | `jpg`, `jpeg`, `png` |
+
+---
+
+## 📬 Response Format
+
+### Success
 ```json
 {
-    "name": "name",
-    "email": "1243234@test.com",
-    "password": "password",
-    "password_confirmation": "password"
+    "status": true,
+    "message": "Success",
+    "data": {}
 }
 ```
 
-#### cURL Example
-
-```bash
-curl --location 'http://127.0.0.1:8000/api/register' \
---header 'Content-Type: application/json' \
---header 'Accept: application/json' \
---data '{
-    "name": "name",
-    "email": "1243234@test.com",
-    "password": "password",
-    "password_confirmation": "password"
-}'
-```
-
-#### Response
-
+### Paginated
 ```json
 {
-    "access_token": "jwt_token_here",
-    "token_type": "bearer",
-    "expires_in": 3600
-}
-```
-
-#### Erorr
-
-```json
-{
-    "message": "",
-    "errors": {
-        "email": [""],
-        "password": [""]
+    "status": true,
+    "message": "Success",
+    "data": [],
+    "meta": {
+        "current_page": 1,
+        "last_page": 5,
+        "per_page": 15,
+        "total": 75
     }
 }
 ```
 
----
-
-### تمدید توکن
-
-#### Request
-
-`POST /api/refresh`
-
-- تمدید توکن
-
-#### cURL Example
-
-```bash
-curl --location 'http://127.0.0.1:8000/api/refresh' \
---header 'Content-Type: application/json' \
---header 'Accept: application/json' \
---header 'Authorization: Bearer {token}'
-```
-
-#### Response
-
+### Error
 ```json
 {
-    "access_token": "jwt_token_here",
-    "token_type": "bearer",
-    "expires_in": 3600
-}
-```
-
-#### Erorr
-
-```json
-{
-    "message": ""
+    "status": false,
+    "message": "Error description",
+    "data": null,
+    "errors": []
 }
 ```
 
 ---
 
-### خروج کاربر
+## 🐛 Common Issues
 
-#### Request
+### Upload fails with "song file failed to upload"
+Check PHP upload limits in `php.ini`:
 
-`POST /api/logout`
+```ini
+upload_max_filesize = 64M
+post_max_size = 64M
+```
 
-- خروح کاربر و غیر فعال شدن توکن
+Then restart Apache / `php artisan serve`.
 
-#### cURL Example
+---
+
+## 🧪 Running Tests
 
 ```bash
-curl --location --request POST 'http://127.0.0.1:8000/api/logout' \
---header 'Content-Type: application/json' \
---header 'Accept: application/json' \
---header 'Authorization: Bearer {token}'
+php artisan test
 ```
 
-#### Response
+Requires `laravel_api_test` database (created automatically via `migrate:fresh`).
 
-```json
-{
-    "message": "Successfully logged out"
-}
+---
+
+## 📁 Project Structure
+
 ```
-
-#### Erorr
-
-```json
-{
-    "message": ""
-}
+app/
+├── Http/
+│   ├── Controllers/api/    # API Controllers
+│   ├── Requests/           # Form Requests (validation)
+│   ├── Resources/          # API Resource transformers
+│   └── Traits/ApiResponse  # Unified response trait
+├── Models/                 # Eloquent models
+├── Policies/               # Authorization policies
+├── Repositories/           # Data access layer
+└── Services/               # Business logic layer
+database/
+└── migrations/             # Schema migrations
+    seeders/                # Database seeders
 ```
 
 ---
 
-## API Songs
+## 📄 License
 
-```bash
-Base URL: /api/v1
-```
-
-### دریافت آهنگ های کاربر
-
-#### Request
-
-`GET /api/v1/songs`**\*\*\*\***\*\*\*\***\*\*\*\***\*\*\***\*\*\*\***\*\*\*\***\*\*\*\***
-
-- دریافت آهنگ های کاربر
-
-#### cURL Example
-
-```bash
-curl --location --request POST 'http://127.0.0.1:8000/api/logout' \
---header 'Content-Type: application/json' \
---header 'Accept: application/json' \
---header 'Authorization: Bearer {token}'
-```
-
-#### Response
-
-```json
-{
-    "data": {
-        "id": ,
-        "user_id": ,
-        "title": "",
-        "artist_id": ,
-        "album": "",
-        "year_id": ,
-        "genre_id": ,
-        "duration": ,
-        "path": "",
-        "cover_path": "",
-        "plays":
-    }
-}
-```
-
-#### Erorr
-
-```json
-{
-    "message": ""
-}
-```
+MIT — free to use, modify, and distribute.
 
 ---
 
-### اضافه کردن آهنگ
-
-#### Request
-
-`POST /api/v1/song`
-
-- اضافه کردن آهنگ به کاربر
-
-#### cURL Example
-
-`Content-Type: multipart/form-data`
-
-```bash
-curl --location --request POST 'http://127.0.0.1:8000//api/v1/song' \
---header 'Accept: application/json' \
---header 'Authorization: Bearer {token}
- -F "title=Song From XAMPP PHP" \
-  -F "artist_id=1" \
-  -F "album=XAMPP Album" \
-  -F "year_id=1" \
-  -F "genre_id=1" \
-  -F "duration=215" \
-  -F "song_file=@Rihanna-Where-Have-You-Been.mp3;type=audio/mpeg" \
-  -F "cover_file=@photo_2025-12-31_16-29-05.jpg;type=image/jpeg"'
-```
-
-#### Response
-
-```json
-{
-    "http_code": 201,
-    "response": {
-        "data": {
-            "id": ,
-            "user_id": ,
-            "title": "",
-            "artist_id": "",
-            "album": "",
-            "year_id": "",
-            "genre_id": "",
-            "duration": ,
-            "path": "",
-            "cover_path": "",
-            "plays":
-        }
-    }
-}
-```
-
-#### Erorr
-
-```json
-{
-    "message": ""
-}
-```
-
----
-
-### نمایش اطلاعات یک آهنگ
-
-#### Request
-
-`GET /api/v1/song/{id}`
-
-- هنگام فراخوانی اطلاعات id مورد نظر نمایش داده میشه
-
-#### cURL Example
-
-```bash
-curl --location 'http://127.0.0.1:8000/api/v1/song/{id}' \
---header 'Authorization: Bearer {token}' \
---header 'Content-Type: application/json' \
---header 'Accept: application/json'
-```
-
-#### Response
-
-```json
-{
-    "data": {
-        "id": ,
-        "user_id": ,
-        "title": "",
-        "artist_id": ,
-        "album": "",
-        "year_id": ,
-        "genre_id": ,
-        "duration": ,
-        "path": "",
-        "cover_path": "",
-        "plays":
-    }
-}
-```
-
-#### Erorr
-
-```json
-{
-    "message": ""
-}
-```
-
----
-
-### تغییر اطلاعات آهنگ
-
-#### Request
-
-`PATCH /api/v1/song/{id}`
-
-- هنگام فراخوانی اطلاعات id مورد نظر نمایش داده میشه
-
-#### cURL Example
-
-```bash
-curl --location --request PATCH 'http://127.0.0.1:8000/api/v1/song' \
---header 'Authorization: Bearer {token}' \
---header 'Content-Type: application/json' \
---header 'Accept: application/json' \
---data '{
-  "song_id": "",
-  "title": "",
-  "artist_id": "",
-  "album": "",
-  "year_id":"" ,
-  "genre_id":"" ,
-  "cover_file":""
-}
-'
-```
-
-#### Response
-
-```json
-{
-    "data": {
-        "id": ,
-        "user_id": ,
-        "title": "",
-        "artist_id": ,
-        "album": "",
-        "year_id": ,
-        "genre_id": ,
-        "duration": ,
-        "path": "",
-        "cover_path": "",
-        "plays":
-    }
-}
-```
-
-#### Erorr
-
-```json
-{
-    "message": ""
-}
-```
-
----
-
-### حذف آهنگ
-
-#### Request
-
-`PATCH /api/v1/song/{id}`
-
-- هنگام فراخوانی آهنگ با id مورد نظر حذف میشود
-
-#### cURL Example
-
-```bash
-curl --location --request DELETE 'http://127.0.0.1:8000/api/v1/song/{id}' \
---header 'Accept: application/json' \
---header 'Authorization: Bearer {roken}'
-'
-```
-
-#### Response
-
-```json
-{
-    "data": {
-        "id": ,
-        "user_id": ,
-        "title": "",
-        "artist_id": ,
-        "album": "",
-        "year_id": ,
-        "genre_id": ,
-        "duration": ,
-        "path": "",
-        "cover_path": "",
-        "plays":
-    }
-}
-```
-
-#### Erorr
-
-```json
-{
-    "message": ""
-}
-```
-
----
+<div align="center">
+Made with 🎵 by <a href="https://melipayamak.com">Meli Payamak</a>
+</div>
