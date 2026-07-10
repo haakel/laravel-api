@@ -252,5 +252,5 @@ MIT — آزاد برای استفاده، تغییر و انتشار.
 ---
 
 <div align="center">
-ساخته شده با 🎵 توسط <a href="https://melipayamak.com">ملی پیامک</a>
+ساخته شده با 🎵 توسط <a href="https://tunetales.ir">tunetales</a>
 </div>

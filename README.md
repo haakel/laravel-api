@@ -252,5 +252,5 @@ MIT — free to use, modify, and distribute.
 ---
 
 <div align="center">
-Made with 🎵 by <a href="https://melipayamak.com">Meli Payamak</a>
+Made with 🎵 by <a href="https://tunetales.ir">tunetales</a>
 </div>
