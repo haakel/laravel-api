@@ -8,7 +8,7 @@
 
 **A RESTful music management API built with Laravel — JWT authentication, song/playlist management, streaming, and MusicBrainz integration.**
 
-Built with ❤️ by **Hamid Akbari** — [melipayamak.com](https://melipayamak.com)
+Built with ❤️ by **Hamid Akbari** 
 
 </div>
 
