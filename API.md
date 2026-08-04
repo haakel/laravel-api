@@ -183,7 +183,8 @@ curl -X DELETE http://localhost:8000/api/v1/songs/1 \
 ---
 
 ### Extract Metadata from Audio File (Public)
-Analyzes an uploaded audio file and returns its embedded ID3/metadata tags.
+Analyzes an uploaded audio file and returns its embedded ID3/metadata tags,
+plus enriched data from MusicBrainz and Deezer (cover art, ISRC, rank, etc.).
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/songs/metadata \
@@ -193,15 +194,41 @@ curl -X POST http://localhost:8000/api/v1/songs/metadata \
 **Response:**
 ```json
 {
-    "title": "Song Title",
-    "artist": "Artist Name",
-    "album": "Album Name",
-    "year": "2024",
-    "genre": "Rock",
-    "duration": 245,
-    "bitrate": 320000
+    "status": true,
+    "message": "Success",
+    "data": {
+        "metadata": {
+            "title": "Song Title",
+            "artist": "Artist Name",
+            "album": "Album Name",
+            "year": "2024",
+            "genre": "Rock",
+            "duration": 245,
+            "bitrate": 320000
+        },
+        "music_brainz": {
+            "title": "Song Title",
+            "artist": "Artist Name",
+            "album": "Album Name",
+            "year": "2024",
+            "cover": "https://coverartarchive.org/release/.../front"
+        },
+        "deezer": {
+            "deezer_id": 3135556,
+            "title": "Song Title",
+            "artist": "Artist Name",
+            "album": "Album Name",
+            "duration": 225,
+            "isrc": "USWB10800123",
+            "preview_url": "https://cdns-preview-1.dzcdn.net/...mp3",
+            "rank": 950000,
+            "cover_xl": "https://e-cdns-images.dzcdn.net/images/cover/.../1000x1000-000000-80-0-0.jpg"
+        }
+    }
 }
 ```
+
+> **Note:** `music_brainz` and `deezer` are empty objects `{}` when no match is found.
 
 ---
 
@@ -219,7 +246,259 @@ curl -X POST http://localhost:8000/api/v1/songs/search-musicbrainz \
 
 ---
 
-## 3. Playlists Routes (Authenticated)
+## 3. Deezer Routes (Public)
+
+Search tracks, albums, and metadata via the Deezer API. No authentication required.
+
+### Search Deezer
+Search tracks by query string (e.g. `artist + track`).
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/songs/search-deezer?q=queen+bohemian+rhapsody"
+```
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                     |
+|-----------|--------|----------|---------------------------------|
+| `q`       | string | Yes      | Search query (artist + track)   |
+
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Success",
+    "data": {
+        "count": 5,
+        "results": [
+            {
+                "deezer_id": 3135556,
+                "title": "Bohemian Rhapsody",
+                "artist": "Queen",
+                "artist_id": 412,
+                "album": "A Night At The Opera",
+                "album_id": 302127,
+                "duration": 354,
+                "isrc": "GBUM71029604",
+                "preview_url": "https://cdns-preview-1.dzcdn.net/...mp3",
+                "rank": 950000,
+                "cover_small": "https://e-cdns-images.dzcdn.net/images/cover/.../56x56-000000-80-0-0.jpg",
+                "cover_medium": "https://e-cdns-images.dzcdn.net/images/cover/.../250x250-000000-80-0-0.jpg",
+                "cover_big": "https://e-cdns-images.dzcdn.net/images/cover/.../500x500-000000-80-0-0.jpg",
+                "cover_xl": "https://e-cdns-images.dzcdn.net/images/cover/.../1000x1000-000000-80-0-0.jpg"
+            }
+        ]
+    }
+}
+```
+
+---
+
+### Search Deezer by ISRC
+Find a track on Deezer using its ISRC (International Standard Recording Code).
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/songs/search-deezer-isrc?isrc=GBUM71029604"
+```
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                          |
+|-----------|--------|----------|--------------------------------------|
+| `isrc`    | string | Yes      | ISRC code (e.g. `USWB10800123`)     |
+
+**Response:** Same shape as a single item in `search-deezer` results.
+
+---
+
+### Get Deezer Album
+Retrieve full album info + track list from Deezer.
+
+```bash
+curl -X GET http://localhost:8000/api/v1/songs/deezer-album/302127
+```
+
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Success",
+    "data": {
+        "id": 302127,
+        "title": "A Night At The Opera",
+        "artist": "Queen",
+        "cover_big": "https://...",
+        "cover_xl": "https://...",
+        "release_date": "1975-11-21",
+        "track_count": 12,
+        "label": "Hollywood Records",
+        "tracks": [
+            {
+                "deezer_id": 3135556,
+                "title": "Bohemian Rhapsody",
+                "artist": "Queen",
+                "duration": 354,
+                "isrc": "GBUM71029604"
+            }
+        ]
+    }
+}
+```
+
+---
+
+## 4. Song.link Routes (Public)
+
+Cross-platform track linking. Given a URL from Spotify, YouTube, Deezer, Tidal, etc., returns links to the same track on all supported platforms.
+
+**Supported platforms:** Spotify, Deezer, YouTube, Tidal, Amazon Music, SoundCloud, Apple Music
+
+### Get Cross-platform Links by URL
+```bash
+curl -X POST http://localhost:8000/api/v1/songs/songlink \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC"
+  }'
+```
+
+**Request Body:**
+
+| Field | Type   | Required | Description                                    |
+|-------|--------|----------|------------------------------------------------|
+| `url` | string | Yes      | Any track URL (Spotify, YouTube, Deezer, etc.) |
+
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Success",
+    "data": {
+        "title": "Bohemian Rhapsody",
+        "artist": "Queen",
+        "thumbnail": "https://i.scdn.co/image/...",
+        "thumbnail_width": 640,
+        "duration": 354,
+        "platforms": {
+            "spotify": "https://open.spotify.com/track/4uLU6...",
+            "deezer": "https://deezer.com/track/3135556",
+            "youtube": "https://youtube.com/watch?v=fJ9rUzIMcZQ",
+            "tidal": "https://tidal.com/browse/track/...",
+            "amazon_music": "https://music.amazon.com/track/...",
+            "soundcloud": "https://soundcloud.com/...",
+            "apple_music": "https://music.apple.com/track/..."
+        },
+        "entity_unique_id": "SPOTIFY::track::4uLU6..."
+    }
+}
+```
+
+> **Note:** Not all platforms are available for every track. Missing platforms return `null`.
+
+---
+
+### Get Cross-platform Links by ISRC
+```bash
+curl -X GET "http://localhost:8000/api/v1/songs/songlink-isrc?isrc=USWB10800123"
+```
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                     |
+|-----------|--------|----------|---------------------------------|
+| `isrc`    | string | Yes      | ISRC code                       |
+
+**Response:** Same shape as `songlink` response above.
+
+---
+
+## 5. Lyrics Routes (Public)
+
+Fetch synced lyrics (with timestamps) via the LRCLib API. No authentication required.
+
+### Get Lyrics
+```bash
+curl -X GET "http://localhost:8000/api/v1/songs/lyrics?track=Bohemian+Rhapsody&artist=Queen&duration=354&album=A+Night+At+The+Opera"
+```
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                               |
+|-----------|--------|----------|-------------------------------------------|
+| `track`   | string | Yes      | Track name                                |
+| `artist`  | string | Yes      | Artist name                               |
+| `duration`| int    | Yes      | Duration in seconds (for accurate matching)|
+| `album`   | string | No       | Album name (optional, improves accuracy)  |
+
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Success",
+    "data": {
+        "id": 12345,
+        "track_name": "Bohemian Rhapsody",
+        "artist_name": "Queen",
+        "album_name": "A Night At The Opera",
+        "duration": 354,
+        "instrumental": false,
+        "synced_lyrics": "[00:00.00]Is this the real life...\n[00:03.50]Is this just fantasy...",
+        "plain_lyrics": "Is this the real life...\nIs this just fantasy...",
+        "parsed_lyrics": [
+            { "time": 0.0, "text": "Is this the real life..." },
+            { "time": 3.5, "text": "Is this just fantasy..." }
+        ]
+    }
+}
+```
+
+**Fields:**
+- `synced_lyrics` — LRC format with timestamps (`[MM:SS.xx]text`)
+- `plain_lyrics` — Plain text without timestamps
+- `parsed_lyrics` — Pre-parsed array of `{time, text}` for player integration
+
+---
+
+### Search Lyrics
+Search lyrics by free-text query.
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/songs/lyrics/search?q=bohemian+rhapsody+queen"
+```
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description        |
+|-----------|--------|----------|--------------------|
+| `q`       | string | Yes      | Search query       |
+
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Success",
+    "data": {
+        "count": 3,
+        "results": [
+            {
+                "id": 12345,
+                "track_name": "Bohemian Rhapsody",
+                "artist_name": "Queen",
+                "album_name": "A Night At The Opera",
+                "duration": 354,
+                "instrumental": false,
+                "synced_lyrics": "...",
+                "plain_lyrics": "...",
+                "parsed_lyrics": [...]
+            }
+        ]
+    }
+}
+```
+
+---
+
+## 6. Playlists Routes (Authenticated)
 
 ### List Playlists
 ```bash
@@ -265,7 +544,7 @@ curl -X DELETE http://localhost:8000/api/v1/playlists/1 \
 
 ---
 
-## 4. Playlist Songs Routes (Authenticated)
+## 7. Playlist Songs Routes (Authenticated)
 
 ### Add Song to Playlist
 ```bash
@@ -295,7 +574,7 @@ curl -X DELETE http://localhost:8000/api/v1/playlists/1/songs/1 \
 
 ---
 
-## 5. Favorites Routes (Authenticated)
+## 8. Favorites Routes (Authenticated)
 
 ### List Favorites
 ```bash

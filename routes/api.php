@@ -20,6 +20,19 @@ Route::prefix('v1')->group(function () {
     Route::post('/songs/search-musicbrainz', [SongController::class, 'searchMusicBrainz']);
     Route::get('/songs/search', [SongController::class, 'search']);
 
+    // Deezer
+    Route::get('/songs/search-deezer', [SongController::class, 'searchDeezer']);
+    Route::get('/songs/search-deezer-isrc', [SongController::class, 'searchDeezerByISRC']);
+    Route::get('/songs/deezer-album/{albumId}', [SongController::class, 'getDeezerAlbum']);
+
+    // Song.link (cross-platform)
+    Route::post('/songs/songlink', [SongController::class, 'getSongLink']);
+    Route::get('/songs/songlink-isrc', [SongController::class, 'getSongLinkByISRC']);
+
+    // Lyrics (LrcLib)
+    Route::get('/songs/lyrics', [SongController::class, 'getLyrics']);
+    Route::get('/songs/lyrics/search', [SongController::class, 'searchLyrics']);
+
     // Protected routes (JWT)
     Route::middleware('auth:api')->group(function () {
 

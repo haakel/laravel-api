@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Collection;
 
 class FavoriteRepository
 {
+    /**
+     * @param User $model
+     */
     public function __construct(protected Song $model) {}
 
     public function getByUserId(int $userId): Collection

@@ -21,6 +21,9 @@ Built with ❤️ by **Hamid Akbari**
 - 📂 **Playlist Management** — create, reorder, public/private
 - ❤️ **Favorites** — add/remove favorite songs
 - 🧠 **MusicBrainz Integration** — auto-tagging from audio fingerprint
+- 🎵 **Deezer Integration** — search tracks, album info, cover art, ISRC lookup
+- 🔗 **Song.link Cross-platform** — find same track on Spotify, YouTube, Tidal, Deezer, etc.
+- 📝 **Synced Lyrics (LrcLib)** — fetch timestamped lyrics for player display
 - 🖼️ **Default Cover** — automatic fallback when no cover uploaded
 - 🔍 **Search & Filters** — filter songs by title, artist, album, genre, year
 - 📦 **Spatie Media Library** — file management with conversions
@@ -123,8 +126,30 @@ Base URL: `http://localhost:8000/api/v1`
 | `GET` | `/songs/{id}/stream` | Stream audio file |
 | `PUT` | `/songs/{id}` | Update song info |
 | `DELETE` | `/songs/{id}` | Delete song |
-| `POST` | `/songs/metadata` | Extract metadata from audio file |
+| `POST` | `/songs/metadata` | Extract metadata + Deezer + MusicBrainz data |
 | `POST` | `/songs/search-musicbrainz` | Search MusicBrainz database |
+
+### Deezer (Public)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/songs/search-deezer?q=` | Search tracks on Deezer |
+| `GET` | `/songs/search-deezer-isrc?isrc=` | Find track by ISRC code |
+| `GET` | `/songs/deezer-album/{id}` | Get album info + track list |
+
+### Song.link — Cross-platform (Public)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/songs/songlink` | Find links on Spotify/YouTube/Tidal/etc. by URL |
+| `GET` | `/songs/songlink-isrc?isrc=` | Find links by ISRC code |
+
+### Lyrics — LrcLib (Public)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/songs/lyrics?track=&artist=&duration=&album=` | Get synced lyrics |
+| `GET` | `/songs/lyrics/search?q=` | Search lyrics by query |
 
 ### Playlists
 

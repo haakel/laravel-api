@@ -9,13 +9,30 @@ use Illuminate\Http\UploadedFile;
 
 class PlaylistService
 {
+    /**
+     * سرويس مديريت پلي ليست ها - ساخت، ويراش، حذف و مرتب‌سازي آهنگ‌ها
+     *
+     * @param PlaylistRepository $repository
+     */
     public function __construct(protected PlaylistRepository $repository) {}
 
+    /**
+     * دریافت پلی‌لیست‌های کاربر
+     *
+     * @param int $userId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
     public function getAllByUser(int $userId): LengthAwarePaginator
     {
         return $this->repository->getByUserId($userId);
     }
 
+    /**
+     * دریافت پلی‌لیست با شناسه + آهنگ‌های آن
+     *
+     * @param int $id
+     * @return Playlist|null
+     */
     public function getById(int $id): ?Playlist
     {
         return $this->repository->findById($id);
@@ -26,6 +43,12 @@ class PlaylistService
         return in_array($value, [true, 1, '1', 'true', '"true"'], true);
     }
 
+    /**
+     * ساخت پلی‌لیست جدید
+     *
+     * @param array $data  اطلاعات (name, description, is_public, song_ids)
+     * @return Playlist
+     */
     public function create(array $data, ?UploadedFile $coverFile = null): Playlist
     {
         $playlist = $this->repository->create([
@@ -45,6 +68,13 @@ class PlaylistService
         return $playlist->load('songs');
     }
 
+    /**
+     * ویرایش پلی‌لیست
+     *
+     * @param Playlist $playlist
+     * @param array $data
+     * @return Playlist
+     */
     public function update(array $data, Playlist $playlist, ?UploadedFile $coverFile = null): Playlist
     {
         $updateData = [
@@ -66,21 +96,48 @@ class PlaylistService
         return $playlist->load('songs');
     }
 
+    /**
+     * حذف پلی‌لیست
+     *
+     * @param Playlist $playlist
+     * @return bool
+     */
     public function delete(Playlist $playlist): bool
     {
         return $this->repository->delete($playlist);
     }
 
+    /**
+     * افزودن آهنگ به پلی‌لیست
+     *
+     * @param Playlist $playlist
+     * @param int $songId
+     * @return bool
+     */
     public function attachSong(Playlist $playlist, int $songId): void
     {
         $this->repository->attachSong($playlist, $songId);
     }
 
+    /**
+     * حذف آهنگ از پلی‌لیست
+     *
+     * @param Playlist $playlist
+     * @param int $songId
+     * @return bool
+     */
     public function detachSong(Playlist $playlist, int $songId): void
     {
         $this->repository->detachSong($playlist, $songId);
     }
 
+    /**
+     * مرتب‌سازی مجدد آهنگ‌ها در پلی‌لیست
+     *
+     * @param Playlist $playlist
+     * @param array $songIds
+     * @return bool
+     */
     public function reorderSongs(Playlist $playlist, array $songIds): void
     {
         $this->repository->reorderSongs($playlist, $songIds);
